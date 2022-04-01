@@ -18,9 +18,6 @@ namespace FrontBuilderNet
         /// </summary>
         public static void Build()
         {
-            //Console.Write("Укажите полный путь к каталогу проекта:");
-            //string projectPath = Console.ReadLine();
-            //D:\4\frontBuilderTest
             string projectPath = Project.Path;
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -91,8 +88,6 @@ namespace FrontBuilderNet
                     Dictionary<string, JsonNode> jsonString = variable.ToDictionary(x => x.Key, x => x.Value);
                     string key = jsonString.Keys.FirstOrDefault();
                     string value = variable[key]!.GetValue<string>();
-                    //Console.WriteLine(value);
-
                     inputText = inputText.Replace($"<variable {key}/>", value);
                 }
             }
