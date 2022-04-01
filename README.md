@@ -1,1 +1,2 @@
-FrontBuilderNet
+<h1>FrontBuilderNet</h1>
+Проект для сборки .html файлов из частей. Консольное приложение, написанное на .Net 6.
