@@ -3,6 +3,7 @@ using FrontBuilderNet;
 using System.Reflection;
 
 
+
 Console.WriteLine("Version FrontBuilder: 0.1.2022.1");
 Console.WriteLine("If need help, write 'help'");
 bool isExit = false;

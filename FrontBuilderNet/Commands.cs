@@ -44,7 +44,7 @@ namespace FrontBuilderNet
                 Directory.CreateDirectory(destPath);
 
                 CopyDir(pathTemplate, destPath);
-                Console.Write("Проект создан.");
+                Console.WriteLine("Проект создан.");
             }
         }
 

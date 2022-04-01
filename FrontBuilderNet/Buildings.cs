@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
+using System.Diagnostics;
 
 namespace FrontBuilderNet
 {
@@ -17,11 +22,14 @@ namespace FrontBuilderNet
             //string projectPath = Console.ReadLine();
             //D:\4\frontBuilderTest
             string projectPath = Project.Path;
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             if (string.IsNullOrEmpty(projectPath))
             {
                 Console.WriteLine("Путь не может быть пустым. Необходимо открыть или создать проект");
                 return;
             }
+            Console.WriteLine("Сборка проекта...");
             string sourcePath = Path.Combine(projectPath, "src");
             string sourcePathPartial = Path.Combine(projectPath, Project.DIR_NAME_SOURCE, Project.DIR_NAME_PARTIAL);
             string destPath = Path.Combine(projectPath, Project.DIR_NAME_TARGET);
@@ -53,8 +61,42 @@ namespace FrontBuilderNet
                     }
                 }
                 string outFilePath = Path.Combine(destPath, fName);
+                outputFileContent = outputFileContent.ReplaceVariables(fName);
                 File.WriteAllText(outFilePath, outputFileContent);
             }
+            sw.Stop();
+            Console.WriteLine($"Сборка проекта завершена. {sw.ElapsedMilliseconds} мсек.");
+        }
+
+        /// <summary>
+        /// Замена переменных в .html файлах на данные из настроек приложение frontbuilder.json
+        /// </summary>
+        /// <param name="inputText">Исходный текст</param>
+        /// <param name="pageFileName">Страница, для которой происходит замена переменных</param>
+        /// <returns></returns>
+        static string ReplaceVariables(this string inputText, string pageFileName)
+        {
+            string pathsettings = Path.Combine(Project.Path, Project.FILE_NAME_CONFIG);
+            JsonNode settings = JsonNode.Parse(File.ReadAllText(pathsettings));
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = false,
+                Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic)
+            };
+            JsonNode variables = settings!["variables"]![pageFileName]!;
+            if (variables != null)
+            {
+                foreach (JsonObject variable in variables.AsArray())
+                {
+                    Dictionary<string, JsonNode> jsonString = variable.ToDictionary(x => x.Key, x => x.Value);
+                    string key = jsonString.Keys.FirstOrDefault();
+                    string value = variable[key]!.GetValue<string>();
+                    //Console.WriteLine(value);
+
+                    inputText = inputText.Replace($"<variable {key}/>", value);
+                }
+            }
+            return inputText;
         }
     }
 }
