@@ -93,5 +93,49 @@ namespace FrontBuilderNet
             }
             return inputText;
         }
+
+        /// <summary>
+        /// Список файлов, для отслеживания изменений
+        /// </summary>
+        static List<KeyValuePair<string, string>> files = new List<KeyValuePair<string, string>>();
+        /// <summary>
+        /// Следить за изменениями в проекте
+        /// Следит за временем сохранения файлов. При несовпадении происходит перестройка проекта
+        /// </summary>
+        public static async Task Watch()
+        {
+            if (string.IsNullOrEmpty(Project.Path))
+            {
+                Console.WriteLine("Необходимо открыть или создать проект");
+            }
+            Console.WriteLine($"{DateTime.Now.ToLongTimeString()} Отслеживаем изменения...");
+            string sourcePath = Path.Combine(Project.Path, "src");
+            string sourcePathPartial = Path.Combine(Project.Path, Project.DIR_NAME_SOURCE, Project.DIR_NAME_PARTIAL);
+
+            //Бесконечный цикл проверки файлов
+            while (true)
+            {
+                string[] partialsFiles = Directory.GetFiles(sourcePathPartial, "*.html");
+                string[] pageFiles = Directory.GetFiles(sourcePath, "*.html");
+                var allFiles = partialsFiles.Concat(pageFiles);
+                bool needBuild = false;
+                foreach (string file in allFiles)
+                {
+                    FileInfo fileInfo = new FileInfo(file);
+                    var f = files.FirstOrDefault(x => x.Key == fileInfo.FullName && x.Value == fileInfo.LastWriteTime.ToString());
+                    if (string.IsNullOrEmpty(f.Key))
+                    {
+                        KeyValuePair<string, string> keyValuePair = new KeyValuePair<string, string>(fileInfo.FullName, fileInfo.LastWriteTime.ToString());
+                        files.Add(keyValuePair);
+                        Console.WriteLine($"{keyValuePair.Key} time: {keyValuePair.Value}");
+                        needBuild = true;
+                    }
+                }
+                if (needBuild)
+                    Build();
+                await Task.Delay(1000);
+            }
+        }
+
     }
 }

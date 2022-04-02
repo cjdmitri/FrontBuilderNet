@@ -38,6 +38,11 @@ while (!isExit)
                 Buildings.Build();
                 break;
             }
+        case "watch":
+            {
+              await  Buildings.Watch();
+                break;
+            }
         default:
             {
                 Console.WriteLine("If need help, write 'help'");

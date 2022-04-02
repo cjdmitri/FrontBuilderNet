@@ -19,6 +19,7 @@ namespace FrontBuilderNet
             Console.WriteLine("create - создание нового проекта");
             Console.WriteLine("build - построить ранее открытый проект");
             Console.WriteLine("open - открыть существующий проект");
+            Console.WriteLine("watch - следить за изменениями в файлах. При обнаружении пересобирать проект");
         }
 
         /// <summary>
@@ -63,18 +64,7 @@ namespace FrontBuilderNet
             Console.WriteLine("Проект открыт.");
         }
 
-        /// <summary>
-        /// Следить за изменениями в проекте
-        /// </summary>
-        public static void Watch()
-        {
-            if (string.IsNullOrEmpty(Project.Path))
-            {
-                Console.WriteLine("Необходимо открыть или создать проект");
-                return;
-            }
-            Dictionary<string, string> fileModel = new Dictionary<string, string>();
-        }
+
 
         static  void CopyDir(string FromDir, string ToDir)
         {
