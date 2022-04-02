@@ -52,7 +52,7 @@ namespace FrontBuilderNet
                 {
                     FileInfo partialFileInfo = new FileInfo(partialFile);
                     string partialName = partialFileInfo.Name;
-                    if (outputFileContent.Contains($"<partial {partialName}/>"))
+                    if (outputFileContent.Contains($"<partial {partialName}/>") || outputFileContent.Contains($"<partial {partialName} />"))
                     {
                         outputFileContent = outputFileContent.Replace($"<partial {partialName}/>", File.ReadAllText(partialFile));
                     }
@@ -88,7 +88,7 @@ namespace FrontBuilderNet
                     Dictionary<string, JsonNode> jsonString = variable.ToDictionary(x => x.Key, x => x.Value);
                     string key = jsonString.Keys.FirstOrDefault();
                     string value = variable[key]!.GetValue<string>();
-                    inputText = inputText.Replace($"<variable {key}/>", value);
+                    inputText = inputText.Replace($"<variable {key}/>", value).Replace($"<variable {key} />", value);
                 }
             }
             return inputText;
