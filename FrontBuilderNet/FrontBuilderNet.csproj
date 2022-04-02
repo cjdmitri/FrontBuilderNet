@@ -11,12 +11,30 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="template\src\js\" />
-    <Folder Include="template\src\css\" />
+    <Folder Include="template\dist\js\" />
+    <Folder Include="template\dist\css\" />
     <Folder Include="template\src\partials\" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="LastProject.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="template">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -29,13 +47,13 @@
     <None Update="template\src\about.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="template\src\css\site.css">
+    <None Update="template\dist\css\site.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="template\src\index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="template\src\js\site.js">
+    <None Update="template\dist\js\site.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="template\src\partials\content.html">

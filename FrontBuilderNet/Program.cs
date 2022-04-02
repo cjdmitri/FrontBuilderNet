@@ -3,11 +3,16 @@ using FrontBuilderNet;
 using System.Reflection;
 
 
-
-Console.WriteLine("Version FrontBuilder: 0.1.2022.1");
-Console.WriteLine("If need help, write 'help'");
+Console.WriteLine("Version FrontBuilder: 0.1.2022.2");
+Console.WriteLine("Для показа списка доступных команд введите 'help'");
+//Проверка последнего проекта
+string path = File.ReadAllText("LastProject.txt");
+if (!string.IsNullOrEmpty(path))
+{
+    Project.Path = path;
+    Console.WriteLine($"Загружен последний проект: {path}");
+}
 bool isExit = false;
-
 while (!isExit)
 {
     string command = Console.ReadLine();

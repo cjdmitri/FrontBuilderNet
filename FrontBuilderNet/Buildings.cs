@@ -26,7 +26,7 @@ namespace FrontBuilderNet
                 Console.WriteLine("Путь не может быть пустым. Необходимо открыть или создать проект");
                 return;
             }
-            Console.WriteLine("Сборка проекта...");
+            Console.WriteLine($"{DateTime.Now.ToLongTimeString()} Сборка проекта...");
             string sourcePath = Path.Combine(projectPath, "src");
             string sourcePathPartial = Path.Combine(projectPath, Project.DIR_NAME_SOURCE, Project.DIR_NAME_PARTIAL);
             string destPath = Path.Combine(projectPath, Project.DIR_NAME_TARGET);
@@ -34,11 +34,11 @@ namespace FrontBuilderNet
 
             //Get all partials
             string[] partialsFiles = Directory.GetFiles(sourcePathPartial, "*.html");
-            Console.WriteLine($"Найдено {partialsFiles.Length} частичных файлов");
+            //Console.WriteLine($"Найдено {partialsFiles.Length} частичных файлов");
 
             //Page Files
             string[] pageFiles = Directory.GetFiles(sourcePath, "*.html");
-            Console.WriteLine($"Найдено {pageFiles.Length} страниц");
+            //Console.WriteLine($"Найдено {pageFiles.Length} страниц");
 
             //Проход повсем страницам файла, для вставки частичных представлений
             foreach (string filePage in pageFiles)
@@ -62,7 +62,7 @@ namespace FrontBuilderNet
                 File.WriteAllText(outFilePath, outputFileContent);
             }
             sw.Stop();
-            Console.WriteLine($"Сборка проекта завершена. {sw.ElapsedMilliseconds} мсек.");
+            Console.WriteLine($"{DateTime.Now.ToLongTimeString()} Сборка проекта завершена. {sw.ElapsedMilliseconds} мсек.");
         }
 
         /// <summary>

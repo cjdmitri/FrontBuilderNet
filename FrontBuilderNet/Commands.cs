@@ -42,6 +42,8 @@ namespace FrontBuilderNet
                 Project.Name = name;
                 Project.Path = destPath;
                 Directory.CreateDirectory(destPath);
+                //Сохранение последнего проекта
+                File.WriteAllText("LastProject.txt", destPath);
 
                 CopyDir(pathTemplate, destPath);
                 Console.WriteLine("Проект создан.");
@@ -56,7 +58,22 @@ namespace FrontBuilderNet
             Console.Write("Укажите путь к папке проекта:");
             string destPath = Console.ReadLine();
             Project.Path = destPath;
+            //Сохранение последнего проекта
+            File.WriteAllText("LastProject.txt", destPath);
             Console.WriteLine("Проект открыт.");
+        }
+
+        /// <summary>
+        /// Следить за изменениями в проекте
+        /// </summary>
+        public static void Watch()
+        {
+            if (string.IsNullOrEmpty(Project.Path))
+            {
+                Console.WriteLine("Необходимо открыть или создать проект");
+                return;
+            }
+            Dictionary<string, string> fileModel = new Dictionary<string, string>();
         }
 
         static  void CopyDir(string FromDir, string ToDir)
