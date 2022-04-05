@@ -8,5 +8,20 @@
             { "title": "О сайте" },
             { "description": "Страница описания проекта" }
         ]
-    }
+    },
+    "bundle": [
+        {
+            "outputfile": "dist/css/bundle.css",
+            "inputfiles": [
+                "src/css/core.css",
+                "src/css/site.css"
+            ]
+        },
+        {
+            "outputfile": "dist/js/bundle.js",
+            "inputfiles": [
+                "src/js/site.js"
+            ]
+        }
+    ]
 }

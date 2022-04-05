@@ -40,7 +40,12 @@ while (!isExit)
             }
         case "watch":
             {
-              await  Buildings.Watch();
+              await Task.Run(Buildings.Watch);
+                break;
+            }
+        case "bundle":
+            {
+                Buildings.Bundle();
                 break;
             }
         default:

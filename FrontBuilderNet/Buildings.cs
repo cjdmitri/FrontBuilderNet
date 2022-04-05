@@ -13,6 +13,19 @@ namespace FrontBuilderNet
 {
     public static class Buildings
     {
+
+        private static JsonSerializerOptions options = new JsonSerializerOptions
+        {
+            WriteIndented = false,
+            Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic)
+        };
+        /// <summary>
+        /// Список файлов, для отслеживания изменений
+        /// </summary>
+        static List<KeyValuePair<string, string>> files = new List<KeyValuePair<string, string>>();
+
+
+
         /// <summary>
         /// Построить проект
         /// </summary>
@@ -20,7 +33,7 @@ namespace FrontBuilderNet
         {
             string projectPath = Project.Path;
             Stopwatch sw = new Stopwatch();
-            sw.Start();
+            sw.Restart();
             if (string.IsNullOrEmpty(projectPath))
             {
                 Console.WriteLine("Путь не может быть пустым. Необходимо открыть или создать проект");
@@ -75,11 +88,7 @@ namespace FrontBuilderNet
         {
             string pathsettings = Path.Combine(Project.Path, Project.FILE_NAME_CONFIG);
             JsonNode settings = JsonNode.Parse(File.ReadAllText(pathsettings));
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = false,
-                Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic)
-            };
+
             JsonNode variables = settings!["variables"]![pageFileName]!;
             if (variables != null)
             {
@@ -94,10 +103,7 @@ namespace FrontBuilderNet
             return inputText;
         }
 
-        /// <summary>
-        /// Список файлов, для отслеживания изменений
-        /// </summary>
-        static List<KeyValuePair<string, string>> files = new List<KeyValuePair<string, string>>();
+
         /// <summary>
         /// Следить за изменениями в проекте
         /// Следит за временем сохранения файлов. При несовпадении происходит перестройка проекта
@@ -109,33 +115,86 @@ namespace FrontBuilderNet
                 Console.WriteLine("Необходимо открыть или создать проект");
             }
             Console.WriteLine($"{DateTime.Now.ToLongTimeString()} Отслеживаем изменения...");
-            string sourcePath = Path.Combine(Project.Path, "src");
-            string sourcePathPartial = Path.Combine(Project.Path, Project.DIR_NAME_SOURCE, Project.DIR_NAME_PARTIAL);
+            //string sourcePath = Path.Combine(Project.Path, "src");
+            //string sourcePathPartial = Path.Combine(Project.Path, Project.DIR_NAME_SOURCE, Project.DIR_NAME_PARTIAL);
 
             //Бесконечный цикл проверки файлов
             while (true)
             {
-                string[] partialsFiles = Directory.GetFiles(sourcePathPartial, "*.html");
-                string[] pageFiles = Directory.GetFiles(sourcePath, "*.html");
-                var allFiles = partialsFiles.Concat(pageFiles);
-                bool needBuild = false;
-                foreach (string file in allFiles)
+                if (NeedUpdate())
                 {
-                    FileInfo fileInfo = new FileInfo(file);
-                    var f = files.FirstOrDefault(x => x.Key == fileInfo.FullName && x.Value == fileInfo.LastWriteTime.ToString());
-                    if (string.IsNullOrEmpty(f.Key))
-                    {
-                        KeyValuePair<string, string> keyValuePair = new KeyValuePair<string, string>(fileInfo.FullName, fileInfo.LastWriteTime.ToString());
-                        files.Add(keyValuePair);
-                        Console.WriteLine($"{keyValuePair.Key} time: {keyValuePair.Value}");
-                        needBuild = true;
-                    }
-                }
-                if (needBuild)
                     Build();
+                    Bundle();
+                    needUpdate = false;
+                }
                 await Task.Delay(1000);
             }
         }
 
+        /// <summary>
+        /// Сборка CSS, JS файлов 
+        /// </summary>
+        public static void Bundle()
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Restart();
+            Console.WriteLine($"{DateTime.Now.ToLongTimeString()} Сборка CSS, JS файлов...");
+            string pathsettings = Path.Combine(Project.Path, Project.FILE_NAME_CONFIG);
+            JsonNode settings = JsonNode.Parse(File.ReadAllText(pathsettings));
+            //Файлы назначения
+            if (settings!["bundle"]! != null)
+            {
+                foreach (JsonNode bundle in settings!["bundle"]!.AsArray())
+                {
+                    string outputPath = Path.Combine(Project.Path, bundle!["outputfile"]!.GetValue<string>());
+                    string outputContent = "";
+                    //Файлы для объединения
+                    foreach (JsonNode inputfile in bundle!["inputfiles"]!.AsArray())
+                    {
+                        string inputPath = Path.Combine(Project.Path, inputfile!.GetValue<string>());
+                        string inputContent = File.ReadAllText(inputPath);
+                        outputContent += inputContent;
+                    }
+                    File.WriteAllText(outputPath, outputContent);
+                }
+
+            }
+            sw.Stop();
+            Console.WriteLine($"{DateTime.Now.ToLongTimeString()} Сборка CSS, JS файлов завершена. {sw.ElapsedMilliseconds} мсек.");
+        }
+
+        private static bool needUpdate = false;
+        /// <summary>
+        /// Отслеживает все файлы в каталоге src на наличие изменений
+        /// </summary>
+        /// <returns>true - если требуются изменения</returns>
+        private static bool NeedUpdate(string path = "")
+        {
+            //bool needUpdate = false;
+            string pathRootSrc;
+            if (string.IsNullOrEmpty(path))
+                pathRootSrc = Path.Combine(Project.Path, Project.DIR_NAME_SOURCE);
+            else
+                pathRootSrc = path;
+
+            //Проход по всем файлам и папкам, для поиска изменений
+            foreach (string file in Directory.GetFiles(pathRootSrc))
+            {
+                FileInfo fileInfo = new FileInfo(file);
+                var f = files.FirstOrDefault(x => x.Key == fileInfo.FullName && x.Value == fileInfo.LastWriteTime.ToString());
+                if (string.IsNullOrEmpty(f.Key))
+                {
+                    KeyValuePair<string, string> keyValuePair = new KeyValuePair<string, string>(fileInfo.FullName, fileInfo.LastWriteTime.ToString());
+                    files.Add(keyValuePair);
+                    needUpdate = true;
+                    //break;
+                }
+            }
+            foreach (string sub in Directory.GetDirectories(pathRootSrc))
+            {
+                NeedUpdate(sub);
+            }
+            return needUpdate;
+        }
     }
 }

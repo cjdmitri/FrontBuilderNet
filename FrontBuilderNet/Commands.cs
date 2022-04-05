@@ -19,6 +19,7 @@ namespace FrontBuilderNet
             Console.WriteLine("create - создание нового проекта");
             Console.WriteLine("build - построить ранее открытый проект");
             Console.WriteLine("open - открыть существующий проект");
+            Console.WriteLine("bundle - Сборка CSS, JS файлов ");
             Console.WriteLine("watch - следить за изменениями в файлах. При обнаружении пересобирать проект");
         }
 
